@@ -4,7 +4,7 @@ import dotenv
 
 dotenv.load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-9zt*2y(k6(h5_fst4)0(^if1n5aco3q*&z%yjf2iz4r38o7=%2'
+SECRET_KEY = os.getenv('SECRET_KEY', None)
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 INSTALLED_APPS = [
