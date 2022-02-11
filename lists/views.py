@@ -9,10 +9,15 @@ def home_page(request):
     if request.method == 'POST':
         new_item_text = request.POST.get('item_text', '')
         Item.objects.create(text=new_item_text)
-        return redirect('/')
+        return redirect('/lists/один-единственный-список-в-мире/')
     context = {'items': Item.objects.all()}
     return render(request=request, template_name=template_name, context=context)
 
 
-class HomePageView(TemplateView):
-    template_name = 'lists/home.html'
+def view_list(request):
+    template_name = 'lists/list.html'
+    return render(request=request, template_name=template_name, context={'items': Item.objects.all()})
+
+
+# class HomePageView(TemplateView):
+#     template_name = 'lists/home.html'

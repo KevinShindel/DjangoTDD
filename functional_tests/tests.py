@@ -17,9 +17,9 @@ class NewVisitorTest(LiveServerTestCase):
     MAX_WAIT = 3
 
     def setUp(self) -> None:
-        self.service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
-        self.options = Options()
-        self.browser = webdriver.Firefox(service=self.service, options=self.options)
+        service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
+        options = Options()
+        self.browser = webdriver.Firefox(service=service, options=options)
 
     def wait_for_row_in_lista_table(self, row_text: str) -> None:
         start_time = time.time()
@@ -47,8 +47,12 @@ class NewVisitorTest(LiveServerTestCase):
         edith_list_url = self.browser.current_url
         self.assertRegex(edith_list_url, '/lists/.+')
 
+        self.browser.close()
         self.browser.quit()
-        self.browser = webdriver.Firefox(self.service, self.options)
+
+        service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
+        options = Options()
+        self.browser = webdriver.Firefox(service=service, options=options)
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element(By.TAG_NAME, 'body').text
         self.assertNotIn('Купить павлиньи перья', page_text)
