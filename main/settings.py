@@ -75,7 +75,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GECKO_DRIVER = os.path.join(BASE_DIR, os.getenv('GECKO_DRIVER', None))
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
