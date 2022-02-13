@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 
-from main.settings import GECKO_DRIVER
+from main.settings import GECKO_DRIVER, STAGING_SERVER
 
 
 class NewVisitorTest(LiveServerTestCase):
@@ -20,6 +20,9 @@ class NewVisitorTest(LiveServerTestCase):
         service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
         options = Options()
         self.browser = webdriver.Firefox(service=service, options=options)
+        staging_server = STAGING_SERVER
+        if staging_server is not None:
+            self.live_server_url = 'http://' + staging_server
 
     def wait_for_row_in_list_table(self, row_text: str) -> None:
         start_time = time.time()

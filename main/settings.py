@@ -81,3 +81,4 @@ GECKO_DRIVER = os.path.join(BASE_DIR, os.getenv('GECKO_DRIVER', None))
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
+STAGING_SERVER = os.getenv('STAGING_SERVER', None)
