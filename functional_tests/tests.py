@@ -19,6 +19,7 @@ class NewVisitorTest(LiveServerTestCase):
     def setUp(self) -> None:
         service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
         options = Options()
+        options.add_argument('--headless')
         self.browser = webdriver.Firefox(service=service, options=options)
         staging_server = STAGING_SERVER
         if staging_server is not None:
@@ -106,6 +107,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
         options = Options()
+        options.add_argument('--headless')
         self.browser = webdriver.Firefox(service=service, options=options)
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element(By.TAG_NAME, 'body').text
