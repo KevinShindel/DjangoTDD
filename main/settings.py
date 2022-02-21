@@ -6,7 +6,7 @@ dotenv.load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', None)
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'ec2-44-201-240-70.compute-1.amazonaws.com']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
