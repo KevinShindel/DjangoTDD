@@ -8,7 +8,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', None)
 HOST = os.getenv('HOST', None)
 DEBUG = True
 PRODUCTION = os.getenv('PROD', False)
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*.compute-1.amazonaws.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.compute-1.amazonaws.com']
 CSRF_TRUSTED_ORIGINS = [HOST]
 INSTALLED_APPS = [
     'django.contrib.admin',
