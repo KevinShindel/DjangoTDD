@@ -37,37 +37,6 @@ class NewListTest(TestCase):
         self.assertTrue(html.endswith('</html>'))
 
 
-class ItemModelTest(TestCase):
-    ''' тест модели элемента списка '''
-
-    def test_saving_and_retrieving_items(self):
-        list_ = List()
-        list_.save()
-
-        first_item = Item()
-        first_item.text = 'The first (ever) list item'
-        first_item.list = list_
-        first_item.save()
-
-        second_item = Item()
-        second_item.text = 'Item the second'
-        second_item.list = list_
-        second_item.save()
-
-        saved_list = List.objects.first()
-        self.assertEqual(saved_list, list_)
-
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
-        first_saved_item = saved_items.first()
-        second_saved_item = saved_items.last()
-
-        self.assertEqual(first_item, first_saved_item)
-        self.assertEqual(first_saved_item.list, list_)
-        self.assertEqual(second_item, second_saved_item)
-        self.assertEqual(second_saved_item.list, list_)
-
-
 class ListViewTest(TestCase):
     ''' тест представления списка '''
 
@@ -114,7 +83,7 @@ class NewItemTest(TestCase):
 
     def test_redirects_to_list_view(self):
         """ тест: переадресуется в представление списка """
-        other_list = List.objects.create()
+        _ = List.objects.create()
         correct_list = List.objects.create()
 
         response = self.client.post(path=f'/lists/{correct_list.id}/add_item',
