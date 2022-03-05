@@ -32,7 +32,7 @@ class NewListTest(TestCase):
         request = HttpRequest()
         response: HttpResponse = home_page(request)
         html = response.content.decode(encoding='utf-8')
-        self.assertTrue(html.startswith('<!DOCTYPE html>'))
+        self.assertTrue(html.__contains__('<!DOCTYPE html>'))
         self.assertIn('<title>To-Do list</title>', html)
         self.assertTrue(html.endswith('</html>'))
 
