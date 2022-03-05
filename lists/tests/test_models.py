@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -8,7 +9,7 @@ class ListAndItemModelsTest(TestCase):
     ''' тест представления списка '''
 
     def test_passes_correct_list_to_template(self):
-        other_list = List.objects.create()
+        _ = List.objects.create()
         correct_list = List.objects.create()
         response = self.client.get(f'/lists/{correct_list.id}/')
         self.assertEqual(response.context['list'], correct_list)
@@ -32,3 +33,11 @@ class ListAndItemModelsTest(TestCase):
 
         self.assertNotContains(response, 'Another element 1')
         self.assertNotContains(response, 'Another element 2')
+
+    def test_cannot_save_empty_list_items(self):
+        ''' тест: нельзя добавлять пустые елементы списка '''
+        list_ = List.objects.create()
+        item = Item.objects.create(list=list_, text='')
+        with self.assertRaises(ValidationError):
+            item.save()
+            item.full_clean()
