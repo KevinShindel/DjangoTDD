@@ -1,4 +1,4 @@
 {% extends 'lists/base.html' %}
 {% block title %}To-Do list{% endblock %}
 {% block header_text %}Start a new Your ToDo list{% endblock %}
-{% block form_action %}/lists/new{% endblock %}
+{% block form_action %}{% url 'new_list' %}{% endblock %}
