@@ -22,10 +22,21 @@ def home_page(request):
 
 
 def view_list(request, list_id):
+    ''' представление списка '''
     template_name = 'lists/list.html'
-    return render(request=request, template_name=template_name, context={'list': List.objects.get(id=list_id)})
+    error = None
+    list_ = List.objects.get(id=list_id)
+    item = Item.objects.none()
+
+    if request.method == 'POST':
+        try:
+            item = Item.objects.create(text=request.POST['item_text'], list=list_)
+            item.full_clean()
+            return redirect(to=f'/lists/{list_.id}/')
+        except ValidationError:
+            item.delete()
+            error = "You can't have an empty list item"
+
+    return render(request=request, template_name=template_name, context={'list': list_, 'error': error})
 
 
-def add_item(request, list_id):
-    Item.objects.create(text=request.POST['item_text'], list_id=list_id)
-    return redirect(to=f'/lists/{list_id}/')
