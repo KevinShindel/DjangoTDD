@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 
+from lists.forms import ItemForm
 from lists.models import Item, List
 
 
@@ -18,7 +19,7 @@ def new_list(request):
 
 def home_page(request):
     template_name = 'lists/home.html'
-    return render(request=request, template_name=template_name)
+    return render(request=request, template_name=template_name, context={'form': ItemForm()})
 
 
 def view_list(request, list_id):
