@@ -21,13 +21,6 @@
 
             <form method="POST" action="{% block form_action %}{% endblock %}">
             {{ form.text }}
-
-{#                <label for="id_new_item">Enter a item</label>#}
-{#                    <input name="item_text"#}
-{#                           id="id_new_item"#}
-{#                           placeholder="Enter a to-do item"#}
-{#                           class="form-control"/>#}
-
                     {% csrf_token %}
             {% if error %}
                 <div class="form-group has-error">

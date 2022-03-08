@@ -24,27 +24,27 @@ class NewVisitorTest(FunctionalTest):
         self.assertIn('Start a new Your ToDo list', header_text)
 
         # She is invited to enter a to-do item straight away
-        inputbox = self.browser.find_element(by=By.ID, value='id_new_item')
+        input_box = self.get_item_input_box()
         self.assertEqual(
-            inputbox.get_attribute('placeholder'),
+            input_box.get_attribute('placeholder'),
             'Enter a to-do item'
         )
 
         # She types "Buy peacock feathers" into a text box (Edith's hobby
         # is tying fly-fishing lures)
-        inputbox.send_keys('Buy peacock feathers')
+        input_box.send_keys('Buy peacock feathers')
 
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
-        inputbox.send_keys(Keys.ENTER)
+        input_box.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Buy peacock feathers')
 
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly" (Edith is very
         # methodical)
-        inputbox = self.browser.find_element(by=By.ID, value='id_new_item')
-        inputbox.send_keys('Use peacock feathers to make a fly')
-        inputbox.send_keys(Keys.ENTER)
+        input_box = self.get_item_input_box()
+        input_box.send_keys('Use peacock feathers to make a fly')
+        input_box.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items on her list
         self.wait_for_row_in_list_table('2: Use peacock feathers to make a fly')
@@ -55,7 +55,7 @@ class NewVisitorTest(FunctionalTest):
     def test_multi_user_can_start_a_list_at_diff_urls(self):
         ''' многочисленные пользователи могут начать списки по разным url '''
         self.browser.get(self.live_server_url)
-        input_box = self.browser.find_element(By.ID, 'id_new_item')
+        input_box = self.get_item_input_box()
         input_box.send_keys('Купить павлиньи перья')
         input_box.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Купить павлиньи перья')
@@ -75,7 +75,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn('Купить павлиньи перья', page_text)
         self.assertNotIn('Сделать мушку', page_text)
 
-        input_box = self.browser.find_element(By.ID, 'id_new_item')
+        input_box = self.get_item_input_box()
         input_box.send_keys('Купить молоко')
         input_box.send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Купить молоко')
@@ -91,7 +91,7 @@ class NewVisitorTest(FunctionalTest):
     #     self.browser.get(self.live_server_url)  # Она решает оценить его домашнюю страницу.
     #     self.assertIn('To-Do', self.browser.title) # Она видит что заголовок говорит о списке неотложных дел.
     #     # Ей сразу предлагается ввести элемент списка.
-    #     input_box = self.browser.find_element(by=By.ID, value='id_new_item')
+    #     input_box = self.browser.find_element(by=By.ID, value='id_text')
     #     self.assertEqual(input_box.get_attribute('placeholder'), 'Enter a to-do item')
     #     # Она выбирает в текстовом поле 'Купить павлиньи перья'
     #     input_box.send_keys('Купить павлиньи перья')
@@ -100,7 +100,7 @@ class NewVisitorTest(FunctionalTest):
     #     self.wait_for_row_in_list_table('1: Купить павлиньи перья')
     #     # Текстовое поле по прежнему предлагает ее добавить еще один элемент.
     #     # Она вводит 'Сделать мушку из павлиньих перьев'
-    #     input_box = self.browser.find_element(by=By.ID, value='id_new_item')
+    #     input_box = self.browser.find_element(by=By.ID, value='id_text')
     #     input_box.send_keys('Сделать мушку из павлиньих перьев')
     #     input_box.send_keys(Keys.ENTER)
     #     # Снова страница обновляется, и теперь показывает оба элемента списка.
