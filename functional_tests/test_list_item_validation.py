@@ -1,6 +1,5 @@
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from functional_tests.base import FunctionalTest
 
@@ -13,30 +12,30 @@ class ItemValidationTest(FunctionalTest):
 
         # Эдит открывает страницу и случайно пытается отправить пустой элемент. Она нажимает Enter на пустом поле ввода
         self.browser.get(self.live_server_url)
-        self.browser.find_element(by=By.ID, value='id_text').send_keys(Keys.ENTER)
+        self.get_item_input_box().send_keys(Keys.ENTER)
 
-        # домашняя страница обновляется, и появляется сообщение об ошибке которое говорит, что елементы списка не должны
-        # быть пустыми
-        fn = lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='.has-error')
-        self.wait_for(fn=fn)
+        # Браузер перехватывает запрос и не загружает страницу со списком
+        self.wait_for(lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='#id_text:invalid'))
 
-        # Она пробует снова, теперь с неким текстом для елемента, и теперь это срабатывает
-        #         Как ни странно, Эдит решает отправить второй пустой елемент списка
+        # Эдит начинает набирать текст нового элемента и ошибка изчезает
+        self.get_item_input_box().send_keys('Buy milk')
+        self.wait_for(lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='#id_text:valid'))
 
-        input_box = self.browser.find_element(by=By.ID, value='id_text')
-        actions = ActionChains(driver=self.browser).click(input_box).send_keys('Buy milk').send_keys(Keys.ENTER)
-        actions.perform()
+        # И она может отрпавить его успешно
+        self.get_item_input_box().send_keys(Keys.ENTER)
         self.wait_for_row_in_list_table('1: Buy milk')
 
-        # Она получает аналогичное предупреждение на странице списка
-        self.browser.find_element(by=By.ID, value='id_text').send_keys(Keys.ENTER)
-        fn = lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='.has-error')
-        self.wait_for(fn)
+        # как ни странно Эдит решает отправить второй пустой элемент списка
+        self.get_item_input_box().send_keys(Keys.ENTER)
 
-        # и она может его исправить , заполнив поле неким текстом
-        input_box = self.browser.find_element(by=By.ID, value='id_text')
-        actions = ActionChains(driver=self.browser).click(input_box).send_keys('Make tea').send_keys(Keys.ENTER)
-        actions.perform()
+        # и снова браузер не подчинится
+        self.wait_for_row_in_list_table('1: Buy milk')
+        self.wait_for(lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='#id_text:invalid'))
+
+        # И она может исправится, заполнив поле текстом
+        self.get_item_input_box().send_keys('Make tea')
+        self.wait_for(lambda: self.browser.find_element(by=By.CSS_SELECTOR, value='#id_text:valid'))
+        self.get_item_input_box().send_keys(Keys.ENTER)
 
         self.wait_for_row_in_list_table('1: Buy milk')
         self.wait_for_row_in_list_table('2: Make tea')
