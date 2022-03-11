@@ -9,6 +9,7 @@ HOST = os.getenv('HOST', None)
 DEBUG = True
 PRODUCTION = os.getenv('PROD', False)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.compute-1.amazonaws.com']
+AUTH_USER_MODEL = 'accounts.User'
 CSRF_TRUSTED_ORIGINS = [HOST]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,7 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'superlists',
     'main',
-    'lists'
+    'lists',
+    'accounts'
 ]
 
 MIDDLEWARE = [
