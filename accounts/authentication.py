@@ -1,20 +1,17 @@
 from accounts.models import User, Token
 
 
-class PasswordlessAuthenticationBackend(object):
+class PasswordlessAuthenticationBackend:
 
-    def authenticate(self, uid):
+    @staticmethod
+    def authenticate(uid):
         try:
             token = Token.objects.get(uid=uid)
-            return User.objects.get(email=token.email)
-        except User.DoesNotExist:
-            return User.objects.create(email=token.email)
         except Token.DoesNotExist:
             return None
+        user, exist = User.objects.get_or_create(email=token.email)
+        return user
 
-
-    def get_user(self, email):
-        try:
-            return User.objects.get(email=email)
-        except User.DoesNotExist:
-            return None
+    @staticmethod
+    def get_user(email):
+        return User.objects.get(email=email)

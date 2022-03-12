@@ -9,12 +9,6 @@ HOST = os.getenv('HOST', None)
 DEBUG = True
 PRODUCTION = os.getenv('PROD', False)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.compute-1.amazonaws.com']
-
-AUTH_USER_MODEL = 'accounts.User'
-AUTHENTICATION_BACKENDS = [
-    'accounts.authentication.PasswordlessAuthenticationBackend',
-]
-
 CSRF_TRUSTED_ORIGINS = [HOST]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,6 +22,12 @@ INSTALLED_APPS = [
     'lists',
     'accounts'
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.PasswordlessAuthenticationBackend',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
