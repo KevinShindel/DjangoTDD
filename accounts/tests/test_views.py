@@ -1,8 +1,10 @@
 from itertools import repeat
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 
 from django.test import TestCase
 from django.urls import reverse
+
+from accounts.views import SUCCESS_SEND_MAIL
 
 
 class SendLoginEmailViewTest(TestCase):
@@ -46,4 +48,17 @@ class SendLoginEmailViewTest(TestCase):
         self.assertEqual(subject, 'Your login link for ToDo lists')
         self.assertEqual(from_email, 'noreply@todolists')
         self.assertEqual(to_list, ['some@mail.com'])
+
+    # def test_adds_success_message(self):
+    #     ''' тест добавляется сообщение об успехе '''
+    #     response = self.client.post(reverse('send_login_email'), data={'email': 'some@mail.com'}, follow=True)
+    #     message = list(response.context['messages'])[0]
+    #     self.assertEqual(message.message, SUCCESS_SEND_MAIL)
+    #     self.assertEqual(message.tags, "success")
+
+    @patch('accounts.views.messages')
+    def test_adds_success_messages_with_mocks(self, mock_messages):
+        response = self.client.post(reverse('send_login_email'), data={'email': 'some@mail.com'})
+        self.assertEqual(mock_messages.success.call_args, call(response.wsgi_request, SUCCESS_SEND_MAIL))
+
 

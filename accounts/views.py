@@ -12,6 +12,8 @@ from accounts.models import Token
 
 logger = logging.getLogger('accounts')
 
+SUCCESS_SEND_MAIL = "Check your email, we've sent you a link you can use to log in."
+
 
 def send_login_email(request: HttpRequest):
     ''' выслать ссылку на логин по почте'''
