@@ -1,6 +1,8 @@
 import logging
 
-from django.contrib import auth, messages
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.shortcuts import redirect
@@ -11,7 +13,8 @@ from accounts.models import Token
 logger = logging.getLogger('accounts')
 
 
-def send_login_email(request):
+def send_login_email(request: HttpRequest):
+    ''' выслать ссылку на логин по почте'''
     email = request.POST['email']
     token = Token.objects.create(email=email)
     url = request.build_absolute_uri(
@@ -34,12 +37,12 @@ def send_login_email(request):
 def login(request: HttpRequest):
     ''' регистрация в системе '''
     logger.info(msg='login view')
-    user = auth.authenticate(uid=request.GET['uid'])
+    user = authenticate(request.GET['uid'])
     if user is not None:
-        auth.login(request, user)
+        auth_login(request, user)
     return redirect('/')
 
 
 def logout(request: HttpRequest):
-    auth.logout(request)
+    auth_logout(request)
     return redirect('/')
