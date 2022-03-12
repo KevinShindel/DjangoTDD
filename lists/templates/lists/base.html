@@ -16,15 +16,40 @@
 <div class="container">
 
 <nav class="navbar navbar-default" role="navigation">
+
     <div class="container-fluid">
         <a href="/" class="navbar-brand">ToDo Lists</a>
-        <form action="#" method="post" class="navbar-form navbar-right">
-            <span>Enter email to login:</span>
-            <input type="email" class="form-control" name="email" aria-label=""/>
-            {% csrf_token %}
-        </form>
+        {% if user.is_authenticated %}
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="navbar-text">Logged in as {{ user.email }}</li>
+                <li><a href="{% url 'logout' %}">Log out</a></li>
+            </ul>
+
+        {% else %}
+            <form method="post" class="navbar-form navbar-right" action="{% url 'send_login_email' %}">
+                <span>Enter email to login:</span>
+                <input type="email" class="form-control" name="email" aria-label=""/>
+                {% csrf_token %}
+            </form>
+
+        {% endif %}
     </div>
 </nav>
+
+    {% if messages %}
+        <div class="row">
+            <div class="col-md-8">
+                {% for message in messages %}
+              {% if message.level_tag == 'success' %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% else %}
+                <div class="alert alert-warning">{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
 
     <div class="row justify-content-center">
         <div class="col-md-6 col-md-offset-3 text-center h-100 p-5 bg-light border rounded-3">

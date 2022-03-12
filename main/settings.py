@@ -9,7 +9,12 @@ HOST = os.getenv('HOST', None)
 DEBUG = True
 PRODUCTION = os.getenv('PROD', False)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.compute-1.amazonaws.com']
+
 AUTH_USER_MODEL = 'accounts.User'
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.PasswordlessAuthenticationBackend',
+]
+
 CSRF_TRUSTED_ORIGINS = [HOST]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,3 +92,9 @@ GECKO_DRIVER = os.path.join(BASE_DIR, os.getenv('GECKO_DRIVER', None))
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
 STAGING_SERVER = os.getenv('STAGING_SERVER', None)
+
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')

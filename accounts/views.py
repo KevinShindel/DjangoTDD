@@ -1,36 +1,41 @@
-import uuid
 import logging
 
-from django.contrib.auth import authenticate
+from django.contrib import messages
+from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.core.mail import send_mail
 from django.http import HttpRequest
-from django.shortcuts import render, redirect
-from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.shortcuts import redirect
+from django.urls import reverse
 
 from accounts.models import Token
 
 logger = logging.getLogger('accounts')
 
 
-def send_login_email(request: HttpRequest):
-    ''' выслать ссылку на логин по почте'''
+def send_login_email(request):
     email = request.POST['email']
-    uid = str(uuid.uuid4())
-    Token.objects.create(email=email, uid=uid)
-    logger.info(msg=f'saving uid {uid}, for email {email}')
-    url = request.build_absolute_uri(f'/accounts/login?uid={uid}')
-    send_mail(subject='Your login link for ToDo lists',
-              message=f'Use this link to log in: \n\n{url}',
-              from_email='noreply@todolists',
-              recipient_list=[email])
-    return render(request=request, template_name='accounts/login_email_sent.html')
+    token = Token.objects.create(email=email)
+    url = request.build_absolute_uri(
+        reverse('login') + '?token={uid}'.format(uid=str(token.uid))
+    )
+    message_body = 'Use this link to log in:\n\n{url}'.format(url=url)
+    send_mail(
+        'Your login link for ToDo lists',
+        message_body,
+        'noreply@todolists',
+        [email]
+    )
+    messages.success(
+        request,
+        "Check your email, we've sent you a link you can use to log in."
+    )
+    return redirect('/')
 
 
 def login(request: HttpRequest):
     ''' регистрация в системе '''
     logger.info(msg='login view')
-    uid = request.GET['uid']
-    user = authenticate(uid)
+    user = authenticate(uid=request.GET['token'])
     if user is not None:
         auth_login(request, user)
     return redirect('/')
