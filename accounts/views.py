@@ -15,9 +15,9 @@ def send_login_email(request):
     email = request.POST['email']
     token = Token.objects.create(email=email)
     url = request.build_absolute_uri(
-        reverse('login') + '?token={uid}'.format(uid=str(token.uid))
+        reverse('login') + f'?uid={token.uid}'
     )
-    message_body = 'Use this link to log in:\n\n{url}'.format(url=url)
+    message_body = f'Use this link to log in:\n\n{url}'
     send_mail(
         'Your login link for ToDo lists',
         message_body,
@@ -34,7 +34,7 @@ def send_login_email(request):
 def login(request: HttpRequest):
     ''' регистрация в системе '''
     logger.info(msg='login view')
-    user = auth.authenticate(uid=request.GET['token'])
+    user = auth.authenticate(uid=request.GET['uid'])
     if user is not None:
         auth.login(request, user)
     return redirect('/')
