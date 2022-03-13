@@ -84,7 +84,7 @@ class LoginViewTest(TestCase):
     def test_calls_auth_with_uid_from_get_request(self, mock_auth: Mock):
         ''' вызывается auth с uid из GET запроса '''
         self.client.get('/accounts/login?uid=abcd123')
-        self.assertEqual(mock_auth.authenticate.call_args, call(uid='abcd123'))
+        self.assertEqual(mock_auth.authenticate.call_args, call('abcd123'))
 
     def test_calls_auth_login_with_user_if_there_is_one(self, mock_auth):
         ''' тест вызывается auth_login с пользователем если такой имеентся '''

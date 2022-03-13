@@ -1,5 +1,4 @@
 from django.urls import path
-
 from accounts.views import send_login_email, login, logout
 
 accounts_urls = [
