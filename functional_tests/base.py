@@ -17,8 +17,8 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self) -> None:
         service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
         options = Options()
-        if PRODUCTION:
-            options.add_argument('--headless')
+        # if PRODUCTION:
+        #     options.add_argument('--headless')
         self.browser = webdriver.Firefox(service=service, options=options)
         staging_server = STAGING_SERVER
         if staging_server is not None:

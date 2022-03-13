@@ -4,9 +4,10 @@ from django.core import mail
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+from accounts.views import SUCCESS_SEND_MAIL
 from functional_tests.base import FunctionalTest
 
-TEST_EMAIL = 'kevin.shindel@yahoo.com'
+TEST_EMAIL = 'some@mail.com'
 SUBJECT = 'Your login link for ToDo lists'
 
 
@@ -22,7 +23,7 @@ class LoginTest(FunctionalTest):
         self.browser.find_element(by=By.NAME, value='email').send_keys(Keys.ENTER)
         # Появляется сообщение которое говорит что на почту было выслано письмо
         self.wait_for(lambda: self.assertIn(
-            'Email sent', self.browser.find_element(by=By.TAG_NAME, value='body').text
+            SUCCESS_SEND_MAIL, self.browser.find_element(by=By.TAG_NAME, value='body').text
         ))
         # Эдит проверяет свою почту и находит сообщение
         email = mail.outbox[0]

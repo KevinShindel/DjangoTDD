@@ -7,11 +7,14 @@ class PasswordlessAuthenticationBackend:
     def authenticate(uid):
         try:
             token = Token.objects.get(uid=uid)
+            user, created = User.objects.get_or_create(email=token.email)
+            return user
         except Token.DoesNotExist:
             return None
-        user, exist = User.objects.get_or_create(email=token.email)
-        return user
 
     @staticmethod
     def get_user(email):
-        return User.objects.get(email=email)
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None

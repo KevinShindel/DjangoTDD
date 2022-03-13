@@ -1,10 +1,10 @@
 import uuid
 
-from django.contrib.auth import user_logged_in
+from django.contrib import auth
 from django.contrib.auth.models import update_last_login
 from django.db import models
 
-# user_logged_in.disconnect(update_last_login)
+auth.signals.user_logged_in.disconnect(auth.models.update_last_login)
 
 
 class User(models.Model):

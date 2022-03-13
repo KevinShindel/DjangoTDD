@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock, call
 from django.test import TestCase
 from django.urls import reverse
 
+from accounts.models import Token
 from accounts.views import SUCCESS_SEND_MAIL
 
 
@@ -61,4 +62,39 @@ class SendLoginEmailViewTest(TestCase):
         response = self.client.post(reverse('send_login_email'), data={'email': 'some@mail.com'})
         self.assertEqual(mock_messages.success.call_args, call(response.wsgi_request, SUCCESS_SEND_MAIL))
 
+    def test_creates_token_associated_with_email(self):
+        ''' тест создается маркер связанный с электронной почтой '''
+        self.client.post(reverse('send_login_email'), data={'email': 'some@mail.com'})
+        token = Token.objects.first()
+        self.assertEqual(token.email, 'some@mail.com')
 
+    @patch('accounts.views.send_mail')
+    def test_sends_link_to_login_using_token_uid(self, mock_send_email: Mock):
+        ''' тест отсылается ссылка на вход в систему используя uid'''
+        self.client.post(reverse('send_login_email'), data={'email': 'some@mail.com'}, follow=True)
+        token = Token.objects.first()
+        expected_url = f'http://testserver/accounts/login?uid={token.uid}'
+        (subject, body, from_email, to_list), _ = mock_send_email.call_args
+        self.assertIn(expected_url, body)
+
+
+@patch('accounts.views.auth')
+class LoginViewTest(TestCase):
+
+    def test_calls_auth_with_uid_from_get_request(self, mock_auth: Mock):
+        ''' вызывается auth с uid из GET запроса '''
+        self.client.get('/accounts/login?uid=abcd123')
+        self.assertEqual(mock_auth.authenticate.call_args, call(uid='abcd123'))
+
+    def test_calls_auth_login_with_user_if_there_is_one(self, mock_auth):
+        ''' тест вызывается auth_login с пользователем если такой имеентся '''
+        response = self.client.get('/accounts/login?uid=abcd123')
+        self.assertEqual(
+            mock_auth.login.call_args,
+            call(response.wsgi_request, mock_auth.authenticate.return_value)
+        )
+
+    def test_does_not_login_if_user_is_not_authenticated(self, mock_auth):
+        ''' тест не регистрируется в системе если пользователь не аутентифицирован '''
+        mock_auth.authenticate.return_value = None
+        self.assertFalse(mock_auth.login.called)

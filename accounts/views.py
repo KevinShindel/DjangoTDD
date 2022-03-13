@@ -1,8 +1,5 @@
 import logging
-
-from django.contrib import messages
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib import auth, messages
 from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.shortcuts import redirect
@@ -39,12 +36,12 @@ def send_login_email(request: HttpRequest):
 def login(request: HttpRequest):
     ''' регистрация в системе '''
     logger.info(msg='login view')
-    user = authenticate(request.GET['uid'])
+    user = auth.authenticate(request.GET['uid'])
     if user is not None:
-        auth_login(request, user)
+        auth.login(request, user)
     return redirect('/')
 
 
 def logout(request: HttpRequest):
-    auth_logout(request)
+    auth.logout(request)
     return redirect('/')

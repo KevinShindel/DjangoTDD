@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'superlists',
     'main',
     'lists',
-    'accounts'
+    'accounts',
+    'functional_tests'
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
