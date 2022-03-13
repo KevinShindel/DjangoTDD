@@ -35,9 +35,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         if PRODUCTION:
             options.add_argument('--headless')
         self.browser = webdriver.Firefox(service=service, options=options)
-        staging_server = STAGING_SERVER
-        if staging_server is not None:
-            self.live_server_url = 'http://' + staging_server
+        self.staging_server = STAGING_SERVER
+        if self.staging_server is not None:
+            self.live_server_url = 'http://' + self.staging_server
 
     def tearDown(self) -> None:
         self.browser.close()

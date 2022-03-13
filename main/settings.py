@@ -99,3 +99,24 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+
+YAHOO_HOST = os.getenv('YAHOO_HOST')
+YAHOO_PASSWORD = os.getenv('YAHOO_PASSWORD')
+YAHOO_HOST_PORT = os.getenv('YAHOO_HOST_PORT')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console']
+        }
+    },
+    'root': {'level': 'INFO'}
+}
