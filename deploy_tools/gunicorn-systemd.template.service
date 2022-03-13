@@ -5,7 +5,11 @@ Description=Gunicorn server for SITENAME
 Restart=on-failure
 User=ubuntu
 WorkingDirectory=/opt/SITENAME
-ExecStart=/opt/SITENAME/venv/bin/gunicorn --bind unix:/tmp/SITENAME.socket main.wsgi:application
+ExecStart=/opt/SITENAME/venv/bin/gunicorn \
+    --bind unix:/tmp/SITENAME.socket  \
+    --access-logfile ../access.log \
+    --error-logfile ../error.log \
+    main.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

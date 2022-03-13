@@ -2,6 +2,7 @@ import logging
 import poplib
 import re
 import time
+from encodings.utf_8 import decode
 
 from django.core import mail
 from selenium.webdriver.common.by import By
@@ -41,7 +42,7 @@ class LoginTest(FunctionalTest):
                     for i in reversed(range(max(1, count - 10), count + 1)):
                         logger.info(msg=f'gettin msg {i}')
                         _, lines, __ = inbox.retr(i)
-                        lines = [l.decode('utf8') for l in lines]
+                        lines = [line.decode('utf8') for line in lines]
                         logger.info(msg=lines)
                         if f'Subject: {subject}' in lines:
                             email_id = i
