@@ -10,6 +10,21 @@ from selenium.webdriver.firefox.service import Service
 
 from main.settings import GECKO_DRIVER, STAGING_SERVER, PRODUCTION
 
+MAX_WAIT = 3
+
+
+def wait(fn):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        while True:
+            try:
+                return fn(*args, **kwargs)
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+    return wrapper
+
 
 class FunctionalTest(StaticLiveServerTestCase):
     MAX_WAIT = 3
@@ -32,41 +47,26 @@ class FunctionalTest(StaticLiveServerTestCase):
         ''' получить поле ввода для элемента '''
         return self.browser.find_element(by=By.ID, value='id_text')
 
+    @wait
     def wait_for_row_in_list_table(self, row_text: str) -> None:
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element(by=By.ID, value='id_list_table')
-                rows = table.find_elements(by=By.TAG_NAME, value='tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return None
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > self.MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
+        table = self.browser.find_element(by=By.ID, value='id_list_table')
+        rows = table.find_elements(by=By.TAG_NAME, value='tr')
+        self.assertIn(row_text, [row.text for row in rows])
 
+    @wait
     def wait_for(self, fn) -> None:
-        start_time = time.time()
-        while True:
-            try:
-                return fn()
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > self.MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
+        return fn()
 
+    @wait
     def wait_to_be_logged_in(self, email):
         ''' ожидать входа в систему '''
-        self.wait_for(
-            lambda: self.browser.find_element(by=By.LINK_TEXT, value='Log out')
-        )
+        self.browser.find_element(by=By.LINK_TEXT, value='Log out')
         navbar = self.browser.find_element(by=By.CSS_SELECTOR, value='.navbar')
         self.assertIn(email, navbar.text)
 
+    @wait
     def wait_to_be_logged_out(self, email):
         ''' ожидать выхода из системы '''
-        self.wait_for(
-            lambda: self.browser.find_element(by=By.NAME, value='email')
-        )
+        self.browser.find_element(by=By.NAME, value='email')
         navbar = self.browser.find_element(by=By.CSS_SELECTOR, value='.navbar')
         self.assertNotIn(email, navbar.text)
