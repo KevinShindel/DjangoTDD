@@ -1,5 +1,5 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
-
 from accounts.models import User
 from lists.forms import ItemForm, ExistingListItemForm
 from lists.models import List
@@ -10,7 +10,8 @@ def new_list(request):
     form = ItemForm(data=request.POST)
     if form.is_valid():
         list_ = List.objects.create()
-        list_.owner = request.user
+        if request.user.is_authenticated:
+            list_.owner = request.user
         list_.save()
         form.save(for_list=list_)
         return redirect(list_)
@@ -41,4 +42,5 @@ def view_list(request, list_id):
 
 def my_lists(request, email):
     template_name = 'lists/my_lists.html'
-    return render(request=request, template_name=template_name, context={'owner': User.objects.get(email=email)})
+    owner, _ = User.objects.get_or_create(email=email)
+    return render(request=request, template_name=template_name, context={'owner': owner})

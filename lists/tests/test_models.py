@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import TestCase
 
+from accounts.models import User
 from lists.models import Item, List
 
 
@@ -98,3 +99,21 @@ class ListModelTest(TestCase):
         ''' тест: получен асболютный url '''
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
+
+    def test_lists_can_have_owners(self):
+        ''' тест списки могут иметь владельцев '''
+        user = User.objects.create(email='a@b.com')
+        list_ = List.objects.create(owner=user)
+        self.assertIn(list_, user.list_set.all())
+
+    @staticmethod
+    def test_list_owner_is_optional():
+        ''' тест владелец списка является необязательным '''
+        List.objects.create()  # не должно подымать исключение
+
+    def test_list_name_is_first_item_text(self):
+        ''' тест имя списка является текстом первого элемента '''
+        list_ = List.objects.create()
+        Item.objects.create(list=list_, text='first item')
+        Item.objects.create(list=list_, text='second item')
+        self.assertEqual(list_.name, 'first item')
