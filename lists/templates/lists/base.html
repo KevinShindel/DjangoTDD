@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
+
 <div class="container">
 
 <nav class="navbar navbar-default" role="navigation">
@@ -20,6 +21,9 @@
     <div class="container-fluid">
         <a href="/" class="navbar-brand">ToDo Lists</a>
         {% if user.is_authenticated %}
+            <ul class="nav navbar-nav navbar-right">
+            <li><a href="{% url 'my_lists' user.email %}">My lists</a></li>
+            </ul>
 
             <ul class="nav navbar-nav navbar-right">
                 <li class="navbar-text">Logged in as {{ user.email }}</li>
@@ -54,7 +58,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-md-offset-3 text-center h-100 p-5 bg-light border rounded-3">
             <h1>{% block header_text %}{% endblock %}</h1>
-
+        {% block list_form %}
             <form method="POST" action="{% block form_action %}{% endblock %}">
             {{ form.text }}
                     {% csrf_token %}
@@ -64,12 +68,19 @@
                 </div>
             {% endif %}
             </form>
+        {% endblock %}
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-md-6 col-md-offset3">
             {% block table %}{% endblock %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset3">
+            {% block extra_content %}{% endblock %}
         </div>
     </div>
 
