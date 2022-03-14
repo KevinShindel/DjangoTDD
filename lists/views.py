@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 
+from accounts.models import User
 from lists.forms import ItemForm, ExistingListItemForm
 from lists.models import List
 
@@ -9,6 +10,8 @@ def new_list(request):
     form = ItemForm(data=request.POST)
     if form.is_valid():
         list_ = List.objects.create()
+        list_.owner = request.user
+        list_.save()
         form.save(for_list=list_)
         return redirect(list_)
     else:
@@ -35,6 +38,7 @@ def view_list(request, list_id):
     return render(request=request, template_name=template_name,
                   context={'list': list_, 'form': form})
 
+
 def my_lists(request, email):
     template_name = 'lists/my_lists.html'
-    return render(request=request, template_name=template_name)
+    return render(request=request, template_name=template_name, context={'owner': User.objects.get(email=email)})
