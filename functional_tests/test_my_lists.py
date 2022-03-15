@@ -15,8 +15,8 @@ class MyListTest(FunctionalTest):
     def create_pre_auth_session(self, email):
         ''' создать предварительно аутентифицированный сеанс '''
 
-        if self.staging_server:
-            session_key = create_session_on_server(self.staging_server, email)
+        if self.against_staging:
+            session_key = create_session_on_server(self.server_url, email)
         else:
             session_key = create_pre_authenticated_session(email)
 

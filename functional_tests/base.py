@@ -1,3 +1,4 @@
+import sys
 import time
 from os.path import dirname, join
 
@@ -39,18 +40,35 @@ class FunctionalTest(StaticLiveServerTestCase):
         item_number = num_rows + 1
         self.wait_for_row_in_list_table(f'{item_number}: {item_text}')
 
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls):
+        for arg in sys.argv:
+            if 'liveserver' in arg:
+                cls.server_host = arg.split('=')[1]
+                cls.server_url = 'http://' + cls.server_host
+                cls.against_staging = True
+                return
+        super().setUpClass()
+        cls.against_staging = False
+        cls.server_url = cls.live_server_url
+
+    def setUp(self):
+        if self.against_staging:
+            reset_database(self.server_host)
         service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
         options = Options()
-        if PRODUCTION:
-            options.add_argument('--headless')
         self.browser = webdriver.Firefox(service=service, options=options)
-        self.staging_server = STAGING_SERVER
-        if self.staging_server is not None:
-            self.server_url = 'http://' + self.staging_server
-            reset_database(self.staging_server)
-        else:
-            self.server_url = self.live_server_url
+
+    # def setUp(self) -> None:
+    #     service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
+    #     options = Options()
+    #     if PRODUCTION:
+    #         options.add_argument('--headless')
+    #     self.browser = webdriver.Firefox(service=service, options=options)
+    #     self.staging_server = STAGING_SERVER
+    #     if self.staging_server is not None:
+    #         self.live_server_url = 'http://' + self.staging_server
+    #         reset_database(self.staging_server)
 
     def tearDown(self) -> None:
         self.browser.close()
