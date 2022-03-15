@@ -38,41 +38,43 @@ class MyListTest(FunctionalTest):
         self.wait_to_be_logged_out(email=email)
 
         # Эдит является зарегистрированым пользователем
-        self.create_pre_auth_session(email=email)
-        self.browser.get(self.live_server_url)
-        self.wait_to_be_logged_in(email=email)
+        # Она заходит на главную страницу и создает новй список
+        self.create_pre_auth_session(email)
+        self.browser.get(self.server_url)
         self.add_list_item('Reticulate splines')
         self.add_list_item('Immanentize eschaton')
         first_list_url = self.browser.current_url
 
-        # Она замечает ссылку на Мои списки в первый раз
-        self.browser.find_element(by=By.LINK_TEXT, value='My lists').click()
-        # Она видит что ее список находится там и он назван на основе первого элемента
+        # Она увидела ссылку 'My lists' впервые
+        self.browser.find_element_by_link_text('My lists').click()
+
+        # замечает что список назван по первому элементу
         self.wait_for(
-            lambda: self.browser.find_element(by=By.LINK_TEXT, value='Reticulate splines')
+            lambda: self.browser.find_element_by_link_text('Reticulate splines')
         )
-        self.browser.find_element(by=By.LINK_TEXT, value='Reticulate splines').click()
+        self.browser.find_element_by_link_text('Reticulate splines').click()
         self.wait_for(
             lambda: self.assertEqual(self.browser.current_url, first_list_url)
         )
 
-        # Она решает начать еще один список что бы только убедится
-        self.browser.get(self.live_server_url)
+        # Она решает создать другой список
+        self.browser.get(self.server_url)
         self.add_list_item('Click cows')
         second_list_url = self.browser.current_url
 
-        # Под заголовком Мои Списки поялвяется ее новый список
-        self.browser.find_element(by=By.LINK_TEXT, value='CLick cows')
-        self.browser.find_element(by=By.LINK_TEXT, value='CLick cows').click()
+        # Она видит что появилась ссылка на новый список
+        self.browser.find_element_by_link_text('My lists').click()
         self.wait_for(
-            self.assertEqual(self.browser.current_url, second_list_url)
+            lambda: self.browser.find_element_by_link_text('Click cows')
+        )
+        self.browser.find_element_by_link_text('Click cows').click()
+        self.wait_for(
+            lambda: self.assertEqual(self.browser.current_url, second_list_url)
         )
 
-        # Она выходит из системы. Опция мои списки изчезает
-        self.browser.find_element(by=By.LINK_TEXT, value='Log out').click()
-        self.wait_for(
-            lambda: self.assertEqual(
-                self.browser.find_elements(by=By.LINK_TEXT, value='My lists'),
-                []
-            )
-        )
+        # Она разлогинилась. Ссылка "My lists" паропала.
+        self.browser.find_element_by_link_text('Log out').click()
+        self.wait_for(lambda: self.assertEqual(
+            self.browser.find_elements_by_link_text('My lists'),
+            []
+        ))
