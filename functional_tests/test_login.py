@@ -2,7 +2,6 @@ import logging
 import poplib
 import re
 import time
-from encodings.utf_8 import decode
 
 from django.core import mail
 from selenium.webdriver.common.by import By
@@ -58,7 +57,7 @@ class LoginTest(FunctionalTest):
         ''' тест можно получить ссылку по почте для регистрации '''
         # Эжтт заходит на сайт и впервые видит раздел войти в навигационной панели
         # Он говорит ей ввести свой адрес электронной почты что она и делает
-        if self.staging_server:
+        if self.against_staging:
             test_mail = 'kevin.shindel@yahoo.com'
         else:
             test_mail = TEST_EMAIL
