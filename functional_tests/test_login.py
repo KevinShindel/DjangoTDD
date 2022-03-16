@@ -23,7 +23,7 @@ class LoginTest(FunctionalTest):
 
     def wait_for_email(self, test_email, subject):
         ''' ожидать электронное сообщение '''
-        if not self.staging_server:
+        if not self.against_staging:
             email = mail.outbox[0]
             self.assertIn(test_email, email.to)
             self.assertEqual(email.subject, subject)
