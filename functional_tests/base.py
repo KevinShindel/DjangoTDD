@@ -1,3 +1,6 @@
+import datetime
+import logging
+import os.path
 import sys
 import time
 from os.path import dirname, join
@@ -11,7 +14,9 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from .server_tools import reset_database
 
-from main.settings import GECKO_DRIVER, STAGING_SERVER, PRODUCTION
+from main.settings import GECKO_DRIVER, SCREEN_DUMP_LOCATION
+
+logger = logging.getLogger('FunctionalTest')
 
 MAX_WAIT = 3
 
@@ -59,20 +64,41 @@ class FunctionalTest(StaticLiveServerTestCase):
         options = Options()
         self.browser = webdriver.Firefox(service=service, options=options)
 
-    # def setUp(self) -> None:
-    #     service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
-    #     options = Options()
-    #     if PRODUCTION:
-    #         options.add_argument('--headless')
-    #     self.browser = webdriver.Firefox(service=service, options=options)
-    #     self.staging_server = STAGING_SERVER
-    #     if self.staging_server is not None:
-    #         self.live_server_url = 'http://' + self.staging_server
-    #         reset_database(self.staging_server)
-
     def tearDown(self) -> None:
+        ''' демонтаж '''
+        if self._test_has_failed:
+            if not os.path.exists(SCREEN_DUMP_LOCATION):
+                os.makedirs(SCREEN_DUMP_LOCATION)
+            for ix, handle in enumerate(self.browser.window_handles):
+                self._windowid = ix
+                self.browser.switch_to.window(handle)
+                self.take_screenshot()
+                self.dump_html()
         self.browser.close()
         self.browser.quit()
+
+    @property
+    def _test_has_failed(self):
+        ''' тест не сработал '''
+        return any(error for (method, error) in self._outcome.errors)
+
+    def dump_html(self):
+        ''' выгрузить html '''
+        filename = self._get_filename() + '.html'
+        logger.error(msg=f'HTML file {filename} saved')
+        with open(filename, 'w') as f:
+            f.write(self.browser.page_source)
+
+    def take_screenshot(self):
+        ''' взять скрин экрана '''
+        filename = self._get_filename() + '.png'
+        logger.error(msg=f'Screenshot file {filename} saved')
+        self.browser.get_screenshot_as_file(filename)
+
+    def _get_filename(self):
+        ''' получить имя файла '''
+        timestamp = datetime.datetime.now().isoformat().replace(':', '.')[:19]
+        return f'{SCREEN_DUMP_LOCATION}/{self.__class__.__name__}.{self._testMethodName}-{self._windowid}-{timestamp}'
 
     def get_item_input_box(self):
         ''' получить поле ввода для элемента '''

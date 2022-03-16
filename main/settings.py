@@ -104,6 +104,8 @@ YAHOO_HOST = os.getenv('YAHOO_HOST')
 YAHOO_PASSWORD = os.getenv('YAHOO_PASSWORD')
 YAHOO_HOST_PORT = os.getenv('YAHOO_HOST_PORT')
 
+SCREEN_DUMP_LOCATION = os.path.join(BASE_DIR, 'screendumps')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
