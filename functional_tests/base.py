@@ -1,20 +1,22 @@
 import datetime
 import logging
 import os.path
-import sys
 import time
 from os.path import dirname, join
 
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-from .server_tools import reset_database
 
 from main.settings import GECKO_DRIVER, SCREEN_DUMP_LOCATION
+from .management.commands.create_session import create_pre_authenticated_session
+from .server_tools import create_session_on_server
+from .server_tools import reset_database
 
 logger = logging.getLogger('FunctionalTest')
 
@@ -37,6 +39,12 @@ def wait(fn):
 class FunctionalTest(StaticLiveServerTestCase):
     MAX_WAIT = 3
 
+    @staticmethod
+    def create_browser():
+        service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
+        options = Options()
+        return webdriver.Firefox(service=service, options=options)
+
     def add_list_item(self, item_text):
         ''' добавить элемент списка '''
         num_rows = len(self.browser.find_elements(by=By.CSS_SELECTOR, value='#id_list_table tr'))
@@ -45,24 +53,12 @@ class FunctionalTest(StaticLiveServerTestCase):
         item_number = num_rows + 1
         self.wait_for_row_in_list_table(f'{item_number}: {item_text}')
 
-    @classmethod
-    def setUpClass(cls):
-        for arg in sys.argv:
-            if 'liveserver' in arg:
-                cls.server_host = arg.split('=')[1]
-                cls.server_url = 'http://' + cls.server_host
-                cls.against_staging = True
-                return
-        super().setUpClass()
-        cls.against_staging = False
-        cls.server_url = cls.live_server_url
-
     def setUp(self):
-        if self.against_staging:
-            reset_database(self.server_host)
-        service = Service(executable_path=GECKO_DRIVER, log_path=join(dirname(GECKO_DRIVER), 'log.txt'))
-        options = Options()
-        self.browser = webdriver.Firefox(service=service, options=options)
+        self.browser = self.create_browser()
+        self.staging_server = os.environ.get('STAGING_SERVER')
+        if self.staging_server:
+            self.live_server_url = 'http://' + self.staging_server
+            reset_database(self.staging_server)
 
     def tearDown(self) -> None:
         ''' демонтаж '''
@@ -127,3 +123,18 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element(by=By.NAME, value='email')
         navbar = self.browser.find_element(by=By.CSS_SELECTOR, value='.navbar')
         self.assertNotIn(email, navbar.text)
+
+    def create_pre_authenticated_session(self, email):
+        if self.staging_server:
+            session_key = create_session_on_server(self.staging_server, email)
+        else:
+            session_key = create_pre_authenticated_session(email)
+
+        ## to set a cookie we need to first visit the domain.
+        ## 404 pages load the quickest!
+        self.browser.get(self.live_server_url + "/404_no_such_url/")
+        self.browser.add_cookie(dict(
+            name=settings.SESSION_COOKIE_NAME,
+            value=session_key,
+            path='/',
+        ))
