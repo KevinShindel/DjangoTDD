@@ -1,15 +1,14 @@
-from html import escape
 import unittest
-from unittest.mock import patch, Mock
+from html import escape
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
-from django.urls import resolve
 
-from lists.forms import ItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR, ExistingListItemForm, NewListForm
+from lists.forms import ItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR, ExistingListItemForm
 from lists.models import Item, List
-from lists.views import home_page, new_list_isolated
+from lists.views import new_list_isolated
 
 User = get_user_model()
 

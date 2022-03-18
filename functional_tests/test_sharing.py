@@ -1,6 +1,8 @@
 from selenium.webdriver.common.by import By
 
 from functional_tests.base import FunctionalTest
+from functional_tests.list_page import ListPage
+from functional_tests.my_list_page import MyListsPage
 
 
 def quit_if_possible(browser):
@@ -33,11 +35,31 @@ class SharingTest(FunctionalTest):
 
         # Эдит открывает домащнюю страницу и начинает новый список
         self.browser = edith_browser
-        self.browser.get(self.live_server_url)
-        self.add_list_item('Get help')
+        list_page = ListPage(self).add_list_item('Get help')
+
         # Она замечает опцию "Поделится этим списком"
-        share_box = self.browser.find_element(by=By.CSS_SELECTOR, value='input=[name="sharee"]')
+        share_box = list_page.get_share_box()
         self.assertEqual(
             share_box.get_attribute('placeholder'),
             'your-friend@example.com'
         )
+
+        list_page.share_list_with('oniciferus@mail.com')
+        # Анцифер переходит на страницу списков в своем браузере
+        self.browser = oni_browser
+        MyListsPage(self).got_to_my_lists_page()
+
+        # Она видит в ней список Эдит
+        self.browser.find_element(by=By.LINK_TEXT, value='Get help').click()
+
+        self.wait_for(lambda:
+                      self.assertEqual(
+                          list_page.get_list_owner(),
+                          'some@example.com')
+        )
+        # Он добавляент элемент в список
+        list_page.add_list_item('Hi Edith!')
+        # Когда Эдит обновляет страницу она видит дполнение Анцифера
+        self.browser = edith_browser
+        self.browser.refresh()
+        list_page.wait_for_row_in_list_table('Hi Edith', 2)
