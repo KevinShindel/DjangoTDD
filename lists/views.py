@@ -1,8 +1,24 @@
 from django.shortcuts import render, redirect
+from django.views.generic import FormView, CreateView, DetailView
 
 from accounts.models import User
-from lists.forms import ExistingListItemForm, NewListForm
+from lists.forms import ExistingListItemForm, NewListForm, ItemForm
 from lists.models import List
+
+
+class HomePageView(FormView):
+    template_name = 'lists/home.html'
+    form_class = ItemForm
+
+
+class ViewAndAddToList(DetailView, CreateView):
+    model = List
+    template_name = 'lists/list.html'
+    form_class = ExistingListItemForm
+
+    def get_form(self, form_class=None):
+        self.object = self.get_object()
+        return self.form_class(for_list=self.object, data=self.request.POST)
 
 
 def new_list_isolated(request):
@@ -15,14 +31,16 @@ def new_list_isolated(request):
     return render(request=request, template_name=template_name, context={'form': form})
 
 
-def new_list(request):
-    ''' новый список '''
+class NewListView(CreateView, HomePageView):
 
-    form = NewListForm(data=request.POST)
-    if form.is_valid():
-        list_ = form.save(owner=request.user)
+    def dispatch(self, request, *args, **kwargs):
+        self.user = request.user if request.user.is_authenticated else None
+        return super(NewListView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        list_ = List.objects.create(owner=self.user)
+        form.save(for_list=list_)
         return redirect(list_)
-    return render(request=request, template_name='lists/home.html', context={'form': form})
 
 
 def view_list(request, list_id):

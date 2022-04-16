@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from lists.forms import ItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR, ExistingListItemForm
 from lists.models import Item, List
-from lists.views import new_list_isolated
+from lists.views import new_list_isolated, ViewAndAddToList
 
 User = get_user_model()
 
@@ -46,7 +46,6 @@ class NewListViewIntegratedTest(TestCase):
         self.client.post('/lists/new', data={'text': 'new item'})
         list_ = List.objects.first()
         self.assertEqual(list_.owner, user)
-
 
 class ListViewTest(TestCase):
     ''' тест представления списка '''
@@ -133,12 +132,19 @@ class ListViewTest(TestCase):
     def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
         ''' тест ошибки валидации повторяющегося элемента '''
         list1 = List.objects.create()
-        item1 = Item.objects.create(list=list1, text='textey')
+        _ = Item.objects.create(list=list1, text='textey')
         response = self.client.post(f'/lists/{list1.id}/', data={'text': 'textey'})
         expected_error = escape(DUPLICATE_ITEM_ERROR)
         self.assertContains(response, expected_error)
         self.assertTemplateUsed(response, 'lists/list.html')
         self.assertEqual(Item.objects.all().count(), 1)
+
+    def test_cbv_gets_correct_object(self):
+        ''' тест корретность получения обьекта '''
+        our_list = List.objects.create()
+        view = ViewAndAddToList()
+        view.kwargs = dict(pk=our_list.id)
+        self.assertEqual(view.get_object(), our_list)
 
 
 class MyListTest(TestCase):
